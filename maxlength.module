@@ -78,15 +78,15 @@ function maxlength_form_field_ui_field_edit_form_alter(&$form, &$form_state, $fo
       '#description' => t('Limit the maximum length of the field in characters using the "<strong>Maximum length</strong>" value set in the <strong>field settings</strong> using Javascript.'),
       '#default_value' => isset($form['#instance']['widget']['settings']['maxlength_js']) ? $form['#instance']['widget']['settings']['maxlength_js'] : NULL,
     );
+    $form['instance']['widget']['settings']['maxlength_override'] = array(
+      '#type' => 'textfield',
+      '#title' => 'Maxlength to override',
+      '#description' => t('The maximum length of the field in characters.'),
+      '#default_value' => isset($form['#instance']['widget']['settings']['maxlength_override']) ? $form['#instance']['widget']['settings']['maxlength_override'] : NULL,
+      '#element_validate' => array('maxlength_node_maxlength_override_validate'),
+    );
   }
 
-  $form['instance']['widget']['settings']['maxlength_override'] = array(
-    '#type' => 'textfield',
-    '#title' => 'Maxlength to override',
-    '#description' => t('The maximum length of the field in characters.'),
-    '#default_value' => isset($form['#instance']['widget']['settings']['maxlength_override']) ? $form['#instance']['widget']['settings']['maxlength_override'] : NULL,
-    '#element_validate' => array('maxlength_node_maxlength_override_validate'),
-  );
   $form['instance']['widget']['settings']['maxlength_js_label'] = array(
     '#type' => 'textarea',
     '#rows' => 2,
