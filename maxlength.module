@@ -80,6 +80,13 @@ function maxlength_form_field_ui_field_edit_form_alter(&$form, &$form_state, $fo
     );
   }
 
+  $form['instance']['widget']['settings']['maxlength_override'] = array(
+    '#type' => 'textfield',
+    '#title' => 'Maxlength to override',
+    '#description' => t('The maximum length of the field in characters.'),
+    '#default_value' => isset($form['#instance']['widget']['settings']['maxlength_override']) ? $form['#instance']['widget']['settings']['maxlength_override'] : NULL,
+    '#element_validate' => array('maxlength_node_maxlength_override_validate'),
+  );
   $form['instance']['widget']['settings']['maxlength_js_label'] = array(
     '#type' => 'textarea',
     '#rows' => 2,
@@ -124,6 +131,13 @@ function _maxlength_children(&$element, $ms_elements) {
     // Check if the field settings for maxlength_js are set and add the maxlength and the label text.
     if (isset($element[$child]['#field_name']) && isset($ms_elements[$element[$child]['#field_name']])) {
       $element[$child]['#maxlength'] = isset($element[$child]['#maxlength']) ? $element[$child]['#maxlength'] : $ms_elements[$element[$child]['#field_name']]['widget']['settings']['maxlength_js'];
+
+      if(isset($ms_elements[$element[$child]['#field_name']]['widget']['settings']['maxlength_override'])){
+        $overridelength = $ms_elements[$element[$child]['#field_name']]['widget']['settings']['maxlength_override'];
+	if(intval($overridelength) > 0 && $ms_elements[$element[$child]['#field_name']]['widget']['settings']['maxlength_js']){
+	  $element[$child]['#maxlength'] = $overridelength;
+	}
+      }
       $element[$child]['#maxlength_js'] = TRUE;
 
       $maxlength_js_label = !empty($ms_elements[$element[$child]['#field_name']]['widget']['settings']['maxlength_js_label']) ?
@@ -235,3 +249,16 @@ function maxlength_node_title_validate($element, &$form_state, $form) {
      form_error($element, t('Note titles can be maximum 255 characters long.'));
    }   
 }
+
+/**
+ * Checks if the title field of the node is not set to more then 255 chars, because Drupal Core cannot handle this
+ */
+function maxlength_node_maxlength_override_validate($element, &$form_state, $form) {
+   if (!empty($element['#value']) && !is_numeric($element['#value'])) {
+     form_error($element, t('This field needs to be numeric'));
+   }
+   if (!empty($element['#value']) && is_numeric($element['#value']) && $element['#value'] > intval($form_state['values']['field']['settings']['max_length'])) {
+     form_error($element, t('Maxlength to override can not be larger than the setting of field maximum length.'));
+   }
+}
+
